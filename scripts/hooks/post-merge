@@ -1,0 +1,11 @@
+#!/bin/bash
+# https://git-scm.com/docs/githooks#_post_merge
+
+changed_files="$(git diff-tree -r --name-only --no-commit-id HEAD@{1} HEAD)"
+
+detect_changes() {
+  files_to_search="pyproject.toml\|uv.lock"
+	echo "$changed_files" | grep --quiet $files_to_search && echo " * changes detected in $1" && echo " * running $2" && make install
+}
+
+detect_changes
