@@ -29,7 +29,7 @@ add-package: pre-requirements ## Installs a new package in the app. ex: make ins
 
 .PHONY: run
 run: pre-requirements ## Runs the app in production mode
-	uv run python main.py
+	uv run fastapi run
 
 .PHONY: check-typing
 check-typing: pre-requirements  ## Run a static analyzer over the code to find issues

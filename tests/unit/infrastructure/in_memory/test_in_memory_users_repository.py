@@ -1,4 +1,5 @@
-from expects import expect, equal
+from expects import equal, expect
+
 from src.domain.user import User
 from src.infrastructure.in_memory.users_repository import InMemoryUsersRepository
 
