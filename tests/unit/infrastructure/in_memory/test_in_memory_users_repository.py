@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from expects import equal, expect
 
 from src.domain.user import User
@@ -6,7 +8,8 @@ from src.infrastructure.in_memory.users_repository import InMemoryUsersRepositor
 
 class TestInMemoryUsersRepository:
     def test_save_user(self) -> None:
-        user = User(name="Peter", age=42)
+        user_id = uuid4()
+        user = User(id=user_id, name="Peter", age=42)
         repository = InMemoryUsersRepository()
 
         repository.save(user)

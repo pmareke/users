@@ -1,4 +1,5 @@
 from http.client import CREATED
+from uuid import UUID
 
 from fastapi import APIRouter, Depends
 
@@ -23,6 +24,14 @@ def create_user(
     user_request: UserRequest,
     handler: CreateUserCommandHandler = Depends(_get_create_users_command_handler),
 ) -> None:
-    user = User(**dict(user_request))
+    user = _create_user_from_request(user_request)
     command = CreateUserCommand(user)
     handler.execute(command)
+
+
+def _create_user_from_request(user_request: UserRequest) -> User:
+    return User(
+        id=UUID(user_request.id),
+        name=user_request.name,
+        age=user_request.age,
+    )

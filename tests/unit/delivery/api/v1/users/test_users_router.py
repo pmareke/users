@@ -1,4 +1,5 @@
 from http.client import CREATED
+from uuid import uuid4
 
 from doublex import Mimic, Spy
 from doublex_expects import have_been_called_with
@@ -16,10 +17,11 @@ from src.use_cases.commands.create_user_command import (
 
 class TestUsersRouter:
     def test_create_user(self) -> None:
+        user_id = uuid4()
         name = "Peter"
         age = 30
-        payload = {"name": name, "age": age}
-        user = User(name=name, age=age)
+        payload = {"id": user_id.hex, "name": name, "age": age}
+        user = User(id=user_id, name=name, age=age)
         command = CreateUserCommand(user)
         client = TestClient(app)
         handler = Mimic(Spy, CreateUserCommandHandler)
