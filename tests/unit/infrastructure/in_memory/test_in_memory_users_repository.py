@@ -1,15 +1,12 @@
-from uuid import uuid4
-
 from expects import equal, expect
 
-from src.domain.user import User
 from src.infrastructure.in_memory.users_repository import InMemoryUsersRepository
+from tests.test_data import TestData
 
 
 class TestInMemoryUsersRepository:
     def test_save_user(self) -> None:
-        user_id = uuid4()
-        user = User(id=user_id, name="Peter", age=42)
+        user = TestData.a_user()
         repository = InMemoryUsersRepository()
 
         repository.save(user)
