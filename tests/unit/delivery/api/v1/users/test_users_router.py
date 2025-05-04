@@ -16,19 +16,18 @@ from tests.test_data import TestData
 
 
 class TestUsersRouter:
-    USER = TestData.a_user()
-    PAYLOAD = TestData.a_payload_from_a_user(USER)
-
     @pytest.fixture(autouse=True)
     def client(self) -> TestClient:
         return TestClient(app)
 
     def test_create_user(self, client: TestClient) -> None:
+        user = TestData.a_user()
+        payload = TestData.a_payload_from_a_user(user)
         handler = Mimic(Spy, CreateUserCommandHandler)
         app.dependency_overrides[_get_create_users_command_handler] = lambda: handler
-        command = CreateUserCommand(self.USER)
+        command = CreateUserCommand(user)
 
-        response = client.post("/api/v1/users", json=self.PAYLOAD)
+        response = client.post("/api/v1/users", json=payload)
 
         expect(response.status_code).to(equal(CREATED))
         expect(handler.execute).to(have_been_called_with(command))
