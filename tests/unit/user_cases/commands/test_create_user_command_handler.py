@@ -11,7 +11,7 @@ from tests.test_data import TestData
 
 
 class TestCreateUserCommandHandler:
-    def test_create_user_command_handler(self) -> None:
+    def test_create_user(self) -> None:
         user = TestData.a_user()
         command = CreateUserCommand(user)
         users_repository = Mimic(Spy, InMemoryUsersRepository)
