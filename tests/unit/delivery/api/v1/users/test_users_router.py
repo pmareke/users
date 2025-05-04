@@ -1,5 +1,6 @@
 from http.client import CREATED
 
+import pytest
 from doublex import Mimic, Spy
 from doublex_expects import have_been_called_with
 from expects import equal, expect
@@ -15,11 +16,14 @@ from tests.test_data import TestData
 
 
 class TestUsersRouter:
-    def test_create_user(self) -> None:
+    @pytest.fixture(autouse=True)
+    def client(self) -> TestClient:
+        return TestClient(app)
+
+    def test_create_user(self, client: TestClient) -> None:
         user = TestData.a_user()
-        payload = TestData.a_payload_from_user(user)
+        payload = TestData.a_payload_from_a_user(user)
         command = CreateUserCommand(user)
-        client = TestClient(app)
         handler = Mimic(Spy, CreateUserCommandHandler)
 
         app.dependency_overrides[_get_create_users_command_handler] = lambda: handler

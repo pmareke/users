@@ -13,5 +13,5 @@ class TestData:
         return User(TestData.ANY_USER_ID, TestData.ANY_USER_NAME, TestData.ANY_USER_AGE)
 
     @staticmethod
-    def a_payload_from_user(user: User) -> dict:
+    def a_payload_from_a_user(user: User) -> dict:
         return {"id": user.id.hex, "name": user.name, "age": user.age}
