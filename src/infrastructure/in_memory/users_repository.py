@@ -15,4 +15,4 @@ class InMemoryUsersRepository(UsersRepository):
         return list(self._users.values())
 
     def find_by_id(self, user_id: UUID) -> User:
-        return list(self._users.values())[0]
+        return self._users[user_id]

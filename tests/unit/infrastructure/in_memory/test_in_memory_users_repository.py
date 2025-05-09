@@ -13,3 +13,12 @@ class TestInMemoryUsersRepository:
         users = repository.find_all()
 
         expect(users).to(equal([user]))
+
+    def test_save__and_find_one_user(self) -> None:
+        user = TestData.a_user()
+        repository = InMemoryUsersRepository()
+
+        repository.save(user)
+        found_user = repository.find_by_id(user.id)
+
+        expect(found_user).to(equal(user))
