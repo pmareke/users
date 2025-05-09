@@ -10,7 +10,7 @@ class User:
 
     def json(self) -> dict:
         return {
-            "id": str(self.id),
+            "id": self.id.hex,
             "name": self.name,
             "age": self.age,
         }

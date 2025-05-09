@@ -12,6 +12,10 @@ from src.use_cases.commands.create_user_command import (
     CreateUserCommandHandler,
 )
 from src.use_cases.queries.find_all_users_query import FindAllUsersQueryHandler
+from src.use_cases.queries.find_one_user_query import (
+    FindOneUserQuery,
+    FindOneUserQueryHandler,
+)
 
 users_router = APIRouter()
 users_repository = InMemoryUsersRepository()
@@ -23,6 +27,10 @@ def _get_create_users_command_handler() -> CreateUserCommandHandler:
 
 def _get_find_all_users_query_handler() -> FindAllUsersQueryHandler:
     return FindAllUsersQueryHandler(users_repository)
+
+
+def _get_find_one_user_query_handler() -> FindOneUserQueryHandler:
+    return FindOneUserQueryHandler()
 
 
 @users_router.post("/", status_code=CREATED)
@@ -42,9 +50,21 @@ def find_all_users(
     response = handler.execute()
     users: list[UserResponse] = []
     for user in response.data():
-        json_user = UserResponse(id=user.id, name=user.name, age=user.age)
+        json_user = UserResponse(id=user.id.hex, name=user.name, age=user.age)
         users.append(json_user)
     return UsersResponse(users=users)
+
+
+@users_router.get("/{user_id}", status_code=OK)
+def find_one_user(
+    user_id: str,
+    handler: FindOneUserQueryHandler = Depends(_get_find_one_user_query_handler),
+) -> UserResponse:
+    id = UUID(user_id)
+    query = FindOneUserQuery(id)
+    response = handler.execute(query)
+    user = response.data()
+    return UserResponse(id=user.id.hex, name=user.name, age=user.age)
 
 
 def _create_user_from_request(user_request: UserRequest) -> User:

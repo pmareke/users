@@ -1,10 +1,8 @@
-from uuid import UUID
-
 from pydantic import BaseModel
 
 
 class UserResponse(BaseModel):
-    id: UUID
+    id: str
     name: str
     age: int
 
