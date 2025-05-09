@@ -5,7 +5,7 @@ from tests.test_data import TestData
 
 
 class TestInMemoryUsersRepository:
-    def test_save_user(self) -> None:
+    def test_save__and_find_all_users(self) -> None:
         user = TestData.a_user()
         repository = InMemoryUsersRepository()
 
