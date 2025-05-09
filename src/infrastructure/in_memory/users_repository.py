@@ -13,3 +13,6 @@ class InMemoryUsersRepository(UsersRepository):
 
     def find_all(self) -> list[User]:
         return list(self._users.values())
+
+    def find_by_id(self, user_id: UUID) -> User:
+        return list(self._users.values())[0]

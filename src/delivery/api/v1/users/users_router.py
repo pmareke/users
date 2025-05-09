@@ -30,7 +30,7 @@ def _get_find_all_users_query_handler() -> FindAllUsersQueryHandler:
 
 
 def _get_find_one_user_query_handler() -> FindOneUserQueryHandler:
-    return FindOneUserQueryHandler()
+    return FindOneUserQueryHandler(users_repository)
 
 
 @users_router.post("/", status_code=CREATED)

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from src.domain.user import User
-from tests.test_data import TestData
+from src.domain.users_repository import UsersRepository
 
 
 @dataclass
@@ -19,6 +19,9 @@ class FindOneUserQueryResponse:
 
 
 class FindOneUserQueryHandler:
+    def __init__(self, users_repository: UsersRepository) -> None:
+        self.users_repository = users_repository
+
     def execute(self, query: FindOneUserQuery) -> FindOneUserQueryResponse:
-        user = TestData.a_user()
+        user = self.users_repository.find_by_id(query.user_id)
         return FindOneUserQueryResponse(user=user)
