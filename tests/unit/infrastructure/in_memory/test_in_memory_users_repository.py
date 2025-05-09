@@ -5,7 +5,7 @@ from tests.test_data import TestData
 
 
 class TestInMemoryUsersRepository:
-    def test_save__and_find_all_users(self) -> None:
+    def test_save_and_find_all_users(self) -> None:
         user = TestData.a_user()
         repository = InMemoryUsersRepository()
 
@@ -14,7 +14,7 @@ class TestInMemoryUsersRepository:
 
         expect(users).to(equal([user]))
 
-    def test_save__and_find_one_user(self) -> None:
+    def test_save_and_find_one_user(self) -> None:
         user = TestData.a_user()
         repository = InMemoryUsersRepository()
 
