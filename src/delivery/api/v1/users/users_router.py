@@ -22,7 +22,7 @@ def _get_create_users_command_handler() -> CreateUserCommandHandler:
 
 
 def _get_find_all_users_query_handler() -> FindAllUsersQueryHandler:
-    return FindAllUsersQueryHandler()
+    return FindAllUsersQueryHandler(users_repository)
 
 
 @users_router.post("/", status_code=CREATED)
