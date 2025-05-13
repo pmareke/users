@@ -81,9 +81,9 @@ class TestUsersRouter:
         user_id = user.id.hex
         payload = {"name": user.name, "age": user.age}
         with Mimic(Stub, UpdateUserCommandHandler) as handler:
-            query_response = UpdateUserCommandResponse(user)
-            query = UpdateUserCommand(user)
-            handler.execute(query).returns(query_response)
+            command_response = UpdateUserCommandResponse(user)
+            command = UpdateUserCommand(user)
+            handler.execute(command).returns(command_response)
         app.dependency_overrides[_get_update_one_user_command_handler] = lambda: handler
 
         response = client.put(f"/api/v1/users/{user_id}", json=payload)
