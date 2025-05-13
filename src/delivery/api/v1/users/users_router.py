@@ -76,7 +76,7 @@ def find_one_user(
 
 
 @users_router.put("/{user_id}", status_code=OK)
-def update_one_user(
+def update_user(
     user_id: str,
     user_request: UserUpdateRequest,
     handler: UpdateUserCommandHandler = Depends(_get_update_one_user_command_handler),
