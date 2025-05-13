@@ -4,12 +4,16 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 
 from src.delivery.api.v1.users.user_responses import UserResponse, UsersResponse
-from src.delivery.api.v1.users.users_requests import UserRequest
+from src.delivery.api.v1.users.users_requests import UserRequest, UserUpdateRequest
 from src.domain.user import User
 from src.infrastructure.in_memory.users_repository import InMemoryUsersRepository
 from src.use_cases.commands.create_user_command import (
     CreateUserCommand,
     CreateUserCommandHandler,
+)
+from src.use_cases.commands.update_user_command import (
+    UpdateUserCommand,
+    UpdateUserCommandHandler,
 )
 from src.use_cases.queries.find_all_users_query import FindAllUsersQueryHandler
 from src.use_cases.queries.find_one_user_query import (
@@ -31,6 +35,10 @@ def _get_find_all_users_query_handler() -> FindAllUsersQueryHandler:
 
 def _get_find_one_user_query_handler() -> FindOneUserQueryHandler:
     return FindOneUserQueryHandler(users_repository)
+
+
+def _get_update_one_user_command_handler() -> UpdateUserCommandHandler:
+    return UpdateUserCommandHandler()
 
 
 @users_router.post("/", status_code=CREATED)
@@ -65,6 +73,19 @@ def find_one_user(
     response = handler.execute(query)
     user = response.data()
     return _build_user_response(user)
+
+
+@users_router.put("/{user_id}", status_code=OK)
+def update_one_user(
+    user_id: str,
+    user_request: UserUpdateRequest,
+    handler: UpdateUserCommandHandler = Depends(_get_update_one_user_command_handler),
+) -> UserResponse:
+    user = User(UUID(user_id), user_request.name, user_request.age)
+    command = UpdateUserCommand(user)
+    response = handler.execute(command)
+    user_response = response.data()
+    return _build_user_response(user_response)
 
 
 def _create_user_from_request(user_request: UserRequest) -> User:

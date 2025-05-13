@@ -11,10 +11,16 @@ from src.delivery.api.v1.users.users_router import (
     _get_create_users_command_handler,
     _get_find_all_users_query_handler,
     _get_find_one_user_query_handler,
+    _get_update_one_user_command_handler,
 )
 from src.use_cases.commands.create_user_command import (
     CreateUserCommand,
     CreateUserCommandHandler,
+)
+from src.use_cases.commands.update_user_command import (
+    UpdateUserCommand,
+    UpdateUserCommandHandler,
+    UpdateUserCommandResponse,
 )
 from src.use_cases.queries.find_all_users_query import (
     FindAllUsersQueryHandler,
@@ -69,3 +75,19 @@ class TestUsersRouter:
 
         expect(response.status_code).to(equal(OK))
         expect(response.json()).to(equal(user.json()))
+
+    def test_update_one_user(self, client: TestClient) -> None:
+        user = TestData.a_user()
+        user_id = user.id.hex
+        payload = {"name": user.name, "age": user.age}
+        with Mimic(Stub, UpdateUserCommandHandler) as handler:
+            query_response = UpdateUserCommandResponse(user)
+            query = UpdateUserCommand(user)
+            handler.execute(query).returns(query_response)
+        app.dependency_overrides[_get_update_one_user_command_handler] = lambda: handler
+
+        response = client.put(f"/api/v1/users/{user_id}", json=payload)
+
+        expect(response.status_code).to(equal(OK))
+        expected_user = {"id": user.id.hex, "name": user.name, "age": user.age}
+        expect(response.json()).to(equal(expected_user))
