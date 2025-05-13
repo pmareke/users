@@ -50,7 +50,7 @@ def find_all_users(
     response = handler.execute()
     users: list[UserResponse] = []
     for user in response.data():
-        json_user = UserResponse(id=user.id.hex, name=user.name, age=user.age)
+        json_user = _build_user_response(user)
         users.append(json_user)
     return UsersResponse(users=users)
 
@@ -64,12 +64,12 @@ def find_one_user(
     query = FindOneUserQuery(id)
     response = handler.execute(query)
     user = response.data()
-    return UserResponse(id=user.id.hex, name=user.name, age=user.age)
+    return _build_user_response(user)
 
 
 def _create_user_from_request(user_request: UserRequest) -> User:
-    return User(
-        id=UUID(user_request.id),
-        name=user_request.name,
-        age=user_request.age,
-    )
+    return User(id=UUID(user_request.id), name=user_request.name, age=user_request.age)
+
+
+def _build_user_response(user: User) -> UserResponse:
+    return UserResponse(id=user.id.hex, name=user.name, age=user.age)
