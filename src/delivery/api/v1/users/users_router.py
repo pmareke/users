@@ -38,7 +38,7 @@ def _get_find_one_user_query_handler() -> FindOneUserQueryHandler:
 
 
 def _get_update_one_user_command_handler() -> UpdateUserCommandHandler:
-    return UpdateUserCommandHandler()
+    return UpdateUserCommandHandler(users_repository)
 
 
 @users_router.post("/", status_code=CREATED)

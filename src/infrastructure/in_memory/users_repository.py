@@ -16,3 +16,6 @@ class InMemoryUsersRepository(UsersRepository):
 
     def find_by_id(self, user_id: UUID) -> User:
         return self._users[user_id]
+
+    def update(self, user: User) -> User:
+        return user

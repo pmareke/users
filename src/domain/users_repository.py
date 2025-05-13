@@ -16,3 +16,7 @@ class UsersRepository(ABC):
     @abstractmethod
     def find_by_id(self, user_id: UUID) -> User:
         raise NotImplementedError
+
+    @abstractmethod
+    def update(self, user: User) -> User:
+        raise NotImplementedError
