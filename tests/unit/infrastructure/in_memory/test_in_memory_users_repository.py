@@ -31,7 +31,6 @@ class TestInMemoryUsersRepository:
 
         repository.save(user)
         updated_user = repository.update(new_user)
-
         users = repository.find_all()
 
         expect(users).to(equal([updated_user]))
