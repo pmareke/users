@@ -1,5 +1,4 @@
 from http.client import CREATED, NO_CONTENT, OK
-from uuid import uuid4
 
 import pytest
 from doublex import Mimic, Spy, Stub
@@ -99,7 +98,7 @@ class TestUsersRouter:
         expect(response.json()).to(equal(expected_user))
 
     def test_delete_one_user(self, client: TestClient) -> None:
-        user_id = uuid4()
+        user_id = TestData.ANY_USER_ID
         command = DeleteUserCommand(user_id)
         _handler = Mimic(Spy, DeleteUserCommandHandler)
 
