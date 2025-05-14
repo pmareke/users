@@ -22,4 +22,4 @@ class InMemoryUsersRepository(UsersRepository):
         return user
 
     def delete(self, user_id: UUID) -> None:
-        pass
+        del self._users[user_id]

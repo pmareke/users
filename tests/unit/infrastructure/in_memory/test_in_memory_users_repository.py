@@ -1,4 +1,4 @@
-from expects import equal, expect
+from expects import be_empty, equal, expect
 
 from src.domain.user import User
 from src.infrastructure.in_memory.users_repository import InMemoryUsersRepository
@@ -34,3 +34,17 @@ class TestInMemoryUsersRepository:
         users = repository.find_all()
 
         expect(users).to(equal([updated_user]))
+
+    def test_save_and_find_all_users_and_delete(self) -> None:
+        user = TestData.a_user()
+        repository = InMemoryUsersRepository()
+
+        repository.save(user)
+        users = repository.find_all()
+
+        expect(users).to(equal([user]))
+
+        repository.delete(user.id)
+        users = repository.find_all()
+
+        expect(users).to(be_empty)
