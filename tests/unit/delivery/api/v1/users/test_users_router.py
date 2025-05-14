@@ -1,4 +1,5 @@
-from http.client import CREATED, OK
+from http.client import CREATED, NO_CONTENT, OK
+from uuid import uuid4
 
 import pytest
 from doublex import Mimic, Spy, Stub
@@ -9,6 +10,7 @@ from fastapi.testclient import TestClient
 from main import app
 from src.delivery.api.v1.users.users_router import (
     _get_create_users_command_handler,
+    _get_delete_one_user_command_handler,
     _get_find_all_users_query_handler,
     _get_find_one_user_query_handler,
     _get_update_one_user_command_handler,
@@ -16,6 +18,10 @@ from src.delivery.api.v1.users.users_router import (
 from src.use_cases.commands.create_user_command import (
     CreateUserCommand,
     CreateUserCommandHandler,
+)
+from src.use_cases.commands.delete_user_command import (
+    DeleteUserCommand,
+    DeleteUserCommandHandler,
 )
 from src.use_cases.commands.update_user_command import (
     UpdateUserCommand,
@@ -91,3 +97,18 @@ class TestUsersRouter:
         expect(response.status_code).to(equal(OK))
         expected_user = {"id": user.id.hex, "name": user.name, "age": user.age}
         expect(response.json()).to(equal(expected_user))
+
+    def test_delete_one_user(self, client: TestClient) -> None:
+        user_id = uuid4()
+        command = DeleteUserCommand(user_id)
+        _handler = Mimic(Spy, DeleteUserCommandHandler)
+
+        def handler() -> DeleteUserCommandHandler:
+            return _handler  # type: ignore
+
+        app.dependency_overrides[_get_delete_one_user_command_handler] = handler
+
+        response = client.delete(f"/api/v1/users/{user_id.hex}")
+
+        expect(response.status_code).to(equal(NO_CONTENT))
+        expect(_handler.execute).to(have_been_called_with(command))

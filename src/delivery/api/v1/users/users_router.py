@@ -1,4 +1,4 @@
-from http.client import CREATED, OK
+from http.client import CREATED, NO_CONTENT, OK
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
@@ -10,6 +10,10 @@ from src.infrastructure.in_memory.users_repository import InMemoryUsersRepositor
 from src.use_cases.commands.create_user_command import (
     CreateUserCommand,
     CreateUserCommandHandler,
+)
+from src.use_cases.commands.delete_user_command import (
+    DeleteUserCommand,
+    DeleteUserCommandHandler,
 )
 from src.use_cases.commands.update_user_command import (
     UpdateUserCommand,
@@ -39,6 +43,10 @@ def _get_find_one_user_query_handler() -> FindOneUserQueryHandler:
 
 def _get_update_one_user_command_handler() -> UpdateUserCommandHandler:
     return UpdateUserCommandHandler(users_repository)
+
+
+def _get_delete_one_user_command_handler() -> DeleteUserCommandHandler:
+    return DeleteUserCommandHandler()
 
 
 @users_router.post("/", status_code=CREATED)
@@ -86,6 +94,15 @@ def update_user(
     response = handler.execute(command)
     user_response = response.data()
     return _build_user_response(user_response)
+
+
+@users_router.delete("/{user_id}", status_code=NO_CONTENT)
+def delete_user(
+    user_id: str,
+    handler: DeleteUserCommandHandler = Depends(_get_delete_one_user_command_handler),
+) -> None:
+    command = DeleteUserCommand(UUID(user_id))
+    handler.execute(command)
 
 
 def _create_user_from_request(user_request: UserRequest) -> User:
