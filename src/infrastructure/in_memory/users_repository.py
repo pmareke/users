@@ -20,3 +20,6 @@ class InMemoryUsersRepository(UsersRepository):
     def update(self, user: User) -> User:
         self._users[user.id] = user
         return user
+
+    def delete(self, user_id: UUID) -> None:
+        pass

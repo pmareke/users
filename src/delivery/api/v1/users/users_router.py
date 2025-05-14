@@ -46,7 +46,7 @@ def _get_update_one_user_command_handler() -> UpdateUserCommandHandler:
 
 
 def _get_delete_one_user_command_handler() -> DeleteUserCommandHandler:
-    return DeleteUserCommandHandler()
+    return DeleteUserCommandHandler(users_repository)
 
 
 @users_router.post("/", status_code=CREATED)
