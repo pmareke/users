@@ -29,33 +29,33 @@ add-package: pre-requirements ## Installs a new package in the app. ex: make ins
 
 .PHONY: run
 run: pre-requirements ## Runs the app in production mode
-	uv run fastapi run
+	fastapi run
 
 .PHONY: check-typing
 check-typing: pre-requirements  ## Run a static analyzer over the code to find issues
-	uv run ty check .
+	ty check .
 
 .PHONY: check-lint
 check-lint: pre-requirements ## Checks the code style
-	uv run ruff check
+	ruff check
 
 .PHONY: check-format
 check-format: pre-requirements  ## Check format python code
-	uv run ruff format --check
+	ruff format --check
 
 checks: check-typing check-lint check-format ## Run all checks
 
 .PHONY: lint
 lint: pre-requirements ## Lints the code format
-	uv run ruff check --fix
+	ruff check --fix
 
 .PHONY: format
 format: pre-requirements  ## Format python code
-	uv run ruff format
+	ruff format
 
 .PHONY: test
 test:  ## Run tests.
-	uv run pytest tests -x -ra
+	pytest tests -x -ra
 
 .PHONY: pre-commit
 pre-commit: pre-requirements check-lint check-format check-typing test
