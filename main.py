@@ -7,4 +7,8 @@ app = FastAPI(
     description="A simple API for managing users with CRUD operations.",
 )
 
-app.include_router(prefix="/api/v1/users", router=users_router, tags=["Users"])
+app.include_router(
+    prefix="/api/v1/users",
+    router=users_router,
+    tags=["users"],
+)
