@@ -31,6 +31,10 @@ add-dev-package: pre-requirements ## Installs a new package in the app. ex: make
 add-package: pre-requirements ## Installs a new package in the app. ex: make add-package package=XXX
 	uv add $(package)
 
+.PHONY: dev
+dev: pre-requirements ## Runs the app in production mode
+	fastapi dev
+
 .PHONY: run
 run: pre-requirements ## Runs the app in production mode
 	fastapi run
