@@ -13,6 +13,22 @@ local-setup: pre-requirements ## Sets up the local environment (e.g. install git
 	scripts/local-setup.sh
 	make install
 
+.PHONY: build
+build: ## Install the app packages
+	docker build -f Dockerfile -t users .
+
+.PHONY: up
+up: ## Start the stack
+	docker compose up
+
+.PHONY: down
+down: ## Stop the stack
+	docker compose down
+
+.PHONY: stop
+stop: ## Stop running containers
+	docker stop $$(docker ps -a -q)
+
 .PHONY: install
 install: pre-requirements ## Install the app packages
 	uv python install 3.12.8
@@ -61,9 +77,19 @@ lint: pre-requirements ## Lints the code format
 format: pre-requirements  ## Format python code
 	ruff format
 
-.PHONY: test
-test:  ## Run tests.
-	pytest tests -x -ra
+.PHONY: test-unit
+test-unit:  ## Run tests.
+	pytest tests -x -ra tests/unit
+
+.PHONY: test-integration
+test-integration: ## Run integration tests
+	docker compose run --rm --entrypoint /code/integration-tests-entrypoint.sh api python -m pytest tests/integration -ra -x
+
+test: test-unit test-integration ## Run all tests
+
+.PHONY: migration
+migration: ## Generate a new migration, ex: make migration name=XXX
+	docker compose run --build --rm --entrypoint alembic api revision --autogenerate -m $(name)
 
 .PHONY: pre-commit
 pre-commit: pre-requirements check-lint check-format check-typing test

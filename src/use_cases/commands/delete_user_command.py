@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from uuid import UUID
 
 from src.domain.exceptions import NotFoundUserException, NotFoundUsersRepositoryException
 from src.domain.users_repository import UsersRepository
@@ -7,7 +6,7 @@ from src.domain.users_repository import UsersRepository
 
 @dataclass
 class DeleteUserCommand:
-    user_id: UUID
+    user_id: str
 
 
 class DeleteUserCommandHandler:

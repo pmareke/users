@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from uuid import UUID
 
 from src.domain.user import User
 
@@ -14,7 +13,7 @@ class UsersRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def find_by_id(self, user_id: UUID) -> User:
+    def find_by_id(self, user_id: str) -> User:
         raise NotImplementedError
 
     @abstractmethod
@@ -22,5 +21,5 @@ class UsersRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def delete(self, user_id: UUID) -> None:
+    def delete(self, user_id: str) -> None:
         raise NotImplementedError

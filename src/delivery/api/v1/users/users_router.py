@@ -1,5 +1,4 @@
 from http.client import CREATED, INTERNAL_SERVER_ERROR, NO_CONTENT, NOT_FOUND, OK
-from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -88,8 +87,7 @@ def find_one_user(
     handler: FindOneUserQueryHandler = Depends(_get_find_one_user_query_handler),
 ) -> UserResponse:
     try:
-        id = UUID(user_id)
-        query = FindOneUserQuery(id)
+        query = FindOneUserQuery(user_id)
         response = handler.execute(query)
         user = response.data()
         return _build_user_response(user)
@@ -104,7 +102,7 @@ def update_user(
     handler: UpdateUserCommandHandler = Depends(_get_update_one_user_command_handler),
 ) -> UserResponse:
     try:
-        user = User(UUID(user_id), user_request.name, user_request.age)
+        user = User(id=user_id, name=user_request.name, age=user_request.age)
         command = UpdateUserCommand(user)
         response = handler.execute(command)
         user_response = response.data()
@@ -119,15 +117,15 @@ def delete_user(
     handler: DeleteUserCommandHandler = Depends(_get_delete_one_user_command_handler),
 ) -> None:
     try:
-        command = DeleteUserCommand(UUID(user_id))
+        command = DeleteUserCommand(user_id)
         handler.execute(command)
     except NotFoundUserException as ex:
         raise HTTPException(status_code=NOT_FOUND, detail=f"{ex}") from ex
 
 
 def _create_user_from_request(user_request: UserRequest) -> User:
-    return User(id=UUID(user_request.id), name=user_request.name, age=user_request.age)
+    return User(id=user_request.id, name=user_request.name, age=user_request.age)
 
 
 def _build_user_response(user: User) -> UserResponse:
-    return UserResponse(id=user.id.hex, name=user.name, age=user.age)
+    return UserResponse(id=user.id, name=user.name, age=user.age)

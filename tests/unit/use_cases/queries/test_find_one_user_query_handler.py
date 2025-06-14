@@ -26,7 +26,7 @@ class TestFindOneUserQueryHandler:
     def test_raise_error_when_finding_a_non_existing_user(self) -> None:
         user_id = TestData.ANY_USER_ID
         query = FindOneUserQuery(user_id)
-        error_message = f"User with ID: '{user_id.hex}' not found."
+        error_message = f"User with ID: '{user_id}' not found."
         with Mimic(Stub, InMemoryUsersRepository) as users_repository:
             users_repository.find_by_id(ANY_ARG).raises(NotFoundUsersRepositoryException(user_id))
         handler = FindOneUserQueryHandler(users_repository)  # type: ignore

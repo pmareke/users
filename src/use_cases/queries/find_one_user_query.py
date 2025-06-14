@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from uuid import UUID
 
 from src.domain.exceptions import NotFoundUserException, NotFoundUsersRepositoryException
 from src.domain.user import User
@@ -8,7 +7,7 @@ from src.domain.users_repository import UsersRepository
 
 @dataclass
 class FindOneUserQuery:
-    user_id: UUID
+    user_id: str
 
 
 @dataclass

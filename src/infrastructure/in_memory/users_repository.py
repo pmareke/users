@@ -1,5 +1,3 @@
-from uuid import UUID
-
 from src.domain.exceptions import NotFoundUsersRepositoryException, UsersRepositoryException
 from src.domain.user import User
 from src.domain.users_repository import UsersRepository
@@ -7,7 +5,7 @@ from src.domain.users_repository import UsersRepository
 
 class InMemoryUsersRepository(UsersRepository):
     def __init__(self) -> None:
-        self._users: dict[UUID, User] = {}
+        self._users: dict[str, User] = {}
 
     def save(self, user: User) -> None:
         try:
@@ -21,7 +19,7 @@ class InMemoryUsersRepository(UsersRepository):
         except Exception as ex:
             raise UsersRepositoryException(f"{ex}") from ex
 
-    def find_by_id(self, user_id: UUID) -> User:
+    def find_by_id(self, user_id: str) -> User:
         try:
             return self._users[user_id]
         except KeyError as ex:
@@ -34,7 +32,7 @@ class InMemoryUsersRepository(UsersRepository):
         self._users[user.id] = user
         return user
 
-    def delete(self, user_id: UUID) -> None:
+    def delete(self, user_id: str) -> None:
         try:
             del self._users[user_id]
         except KeyError as ex:

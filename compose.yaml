@@ -1,0 +1,29 @@
+services:
+  api:
+    build:
+      context: .
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_DSN: "dqms:password@postgres/dqms"
+    volumes:
+      - ./src:/code/src
+      - ./alembic:/code/alembic
+      - ./tests:/code/tests
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:16.6
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: users
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: users
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
