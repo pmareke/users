@@ -6,6 +6,22 @@ from tests.test_data import TestData
 
 
 class TestInMemoryUsersRepositoryIntegration:
+    def test_raise_error_when_finding_a_non_existent_user(self) -> None:
+        user_id = TestData.ANY_USER_ID
+        error_message = f"User with ID: '{user_id.hex}' not found."
+        users_repository = InMemoryUsersRepository()
+
+        expect(lambda: users_repository.find_by_id(user_id)).to(
+            raise_error(NotFoundUserRepositoryException, error_message)
+        )
+
+    def test_raise_error_when_updating_a_non_existent_user(self) -> None:
+        user = TestData.a_user()
+        error_message = f"User with ID: '{user.id.hex}' not found."
+        users_repository = InMemoryUsersRepository()
+
+        expect(lambda: users_repository.update(user)).to(raise_error(NotFoundUserRepositoryException, error_message))
+
     def test_raise_error_when_deleting_a_non_existent_user(self) -> None:
         user_id = TestData.ANY_USER_ID
         error_message = f"User with ID: '{user_id.hex}' not found."

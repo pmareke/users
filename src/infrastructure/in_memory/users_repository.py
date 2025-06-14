@@ -16,9 +16,15 @@ class InMemoryUsersRepository(UsersRepository):
         return list(self._users.values())
 
     def find_by_id(self, user_id: UUID) -> User:
-        return self._users[user_id]
+        try:
+            return self._users[user_id]
+        except KeyError as ex:
+            raise NotFoundUserRepositoryException(user_id) from ex
 
     def update(self, user: User) -> User:
+        if not self._users.get(user.id):
+            raise NotFoundUserRepositoryException(user.id)
+
         self._users[user.id] = user
         return user
 
