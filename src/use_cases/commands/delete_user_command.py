@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-from src.domain.exceptions import NotFoundUserException, NotFoundUserRepositoryException
+from src.domain.exceptions import NotFoundUserException, NotFoundUsersRepositoryException
 from src.domain.users_repository import UsersRepository
 
 
@@ -17,5 +17,5 @@ class DeleteUserCommandHandler:
     def execute(self, command: DeleteUserCommand) -> None:
         try:
             self.users_repository.delete(command.user_id)
-        except NotFoundUserRepositoryException as ex:
+        except NotFoundUsersRepositoryException as ex:
             raise NotFoundUserException(command.user_id) from ex

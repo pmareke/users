@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-from src.domain.exceptions import NotFoundUserException, NotFoundUserRepositoryException
+from src.domain.exceptions import NotFoundUserException, NotFoundUsersRepositoryException
 from src.domain.user import User
 from src.domain.users_repository import UsersRepository
 
@@ -27,5 +27,5 @@ class FindOneUserQueryHandler:
         try:
             user = self.users_repository.find_by_id(query.user_id)
             return FindOneUserQueryResponse(user=user)
-        except NotFoundUserRepositoryException as ex:
+        except NotFoundUsersRepositoryException as ex:
             raise NotFoundUserException(query.user_id) from ex

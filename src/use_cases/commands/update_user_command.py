@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from src.domain.exceptions import NotFoundUserException, NotFoundUserRepositoryException
+from src.domain.exceptions import NotFoundUserException, NotFoundUsersRepositoryException
 from src.domain.user import User
 from src.domain.users_repository import UsersRepository
 
@@ -26,5 +26,5 @@ class UpdateUserCommandHandler:
         try:
             user = self.users_repository.update(command.user)
             return UpdateUserCommandResponse(user)
-        except NotFoundUserRepositoryException as ex:
+        except NotFoundUsersRepositoryException as ex:
             raise NotFoundUserException(command.user.id) from ex
