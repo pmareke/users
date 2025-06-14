@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from src.domain.exceptions import NotFoundUserRepositoryException
+from src.domain.exceptions import NotFoundUserRepositoryException, UsersRepositoryException
 from src.domain.user import User
 from src.domain.users_repository import UsersRepository
 
@@ -10,10 +10,16 @@ class InMemoryUsersRepository(UsersRepository):
         self._users: dict[UUID, User] = {}
 
     def save(self, user: User) -> None:
-        self._users[user.id] = user
+        try:
+            self._users[user.id] = user
+        except Exception as ex:
+            raise UsersRepositoryException(f"{ex}") from ex
 
     def find_all(self) -> list[User]:
-        return list(self._users.values())
+        try:
+            return list(self._users.values())
+        except Exception as ex:
+            raise UsersRepositoryException(f"{ex}") from ex
 
     def find_by_id(self, user_id: UUID) -> User:
         try:
