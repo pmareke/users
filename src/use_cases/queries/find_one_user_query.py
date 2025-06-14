@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from uuid import UUID
 
+from src.domain.exceptions import NotFoundUserException, NotFoundUserRepositoryException
 from src.domain.user import User
 from src.domain.users_repository import UsersRepository
 
@@ -23,5 +24,8 @@ class FindOneUserQueryHandler:
         self.users_repository = users_repository
 
     def execute(self, query: FindOneUserQuery) -> FindOneUserQueryResponse:
-        user = self.users_repository.find_by_id(query.user_id)
-        return FindOneUserQueryResponse(user=user)
+        try:
+            user = self.users_repository.find_by_id(query.user_id)
+            return FindOneUserQueryResponse(user=user)
+        except NotFoundUserRepositoryException as ex:
+            raise NotFoundUserException(query.user_id) from ex

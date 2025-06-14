@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from src.domain.exceptions import FindAllUsersQueryHandlerException, UsersRepositoryException
 from src.domain.user import User
 from src.domain.users_repository import UsersRepository
 
@@ -17,5 +18,8 @@ class FindAllUsersQueryHandler:
         self.users_repository = users_repository
 
     def execute(self) -> FindAllUsersQueryResponse:
-        users = self.users_repository.find_all()
-        return FindAllUsersQueryResponse(users=users)
+        try:
+            users = self.users_repository.find_all()
+            return FindAllUsersQueryResponse(users=users)
+        except UsersRepositoryException as ex:
+            raise FindAllUsersQueryHandlerException(f"{ex}") from ex
