@@ -1,7 +1,7 @@
-from http.client import CREATED, NO_CONTENT, NOT_FOUND, OK
+from http.client import CREATED, INTERNAL_SERVER_ERROR, NO_CONTENT, NOT_FOUND, OK
 
 import pytest
-from doublex import Mimic, Spy, Stub
+from doublex import ANY_ARG, Mimic, Spy, Stub
 from doublex_expects import have_been_called_with
 from expects import equal, expect
 from fastapi.testclient import TestClient
@@ -14,7 +14,11 @@ from src.delivery.api.v1.users.users_router import (
     _get_find_one_user_query_handler,
     _get_update_one_user_command_handler,
 )
-from src.domain.exceptions import NotFoundUserException
+from src.domain.exceptions import (
+    CreateUserCommandHandlerException,
+    FindAllUsersQueryHandlerException,
+    NotFoundUserException,
+)
 from src.use_cases.commands.create_user_command import (
     CreateUserCommand,
     CreateUserCommandHandler,
@@ -112,6 +116,71 @@ class TestUsersRouter:
 
         expect(response.status_code).to(equal(NO_CONTENT))
         expect(_handler.execute).to(have_been_called_with(command))
+
+    def test_raise_error_when_finding_all_users(self, client: TestClient) -> None:
+        error_message = "Failed to find users."
+
+        def handler() -> FindAllUsersQueryHandler:
+            with Mimic(Stub, FindAllUsersQueryHandler) as _handler:
+                _handler.execute().raises(FindAllUsersQueryHandlerException(error_message))
+            return _handler  # type: ignore
+
+        app.dependency_overrides[_get_find_all_users_query_handler] = handler
+
+        response = client.get("/api/v1/users")
+
+        expect(response.status_code).to(equal(INTERNAL_SERVER_ERROR))
+        expect(response.json()).to(equal({"detail": error_message}))
+
+    def test_raise_error_when_finding_a_non_existing_user(self, client: TestClient) -> None:
+        user_id = TestData.ANY_USER_ID
+        error_message = f"User with ID: '{user_id.hex}' not found."
+
+        def handler() -> FindOneUserQueryHandler:
+            with Mimic(Stub, FindOneUserQueryHandler) as _handler:
+                _handler.execute(ANY_ARG).raises(NotFoundUserException(user_id))
+            return _handler  # type: ignore
+
+        app.dependency_overrides[_get_find_one_user_query_handler] = handler
+
+        response = client.get(f"/api/v1/users/{user_id.hex}")
+
+        expect(response.status_code).to(equal(NOT_FOUND))
+        expect(response.json()).to(equal({"detail": error_message}))
+
+    def test_raise_error_when_creating_a_user(self, client: TestClient) -> None:
+        user = TestData.a_user()
+        payload = TestData.a_payload_from_a_user(user)
+        error_message = f"User: '{user}' could not be saved"
+
+        def handler() -> CreateUserCommandHandler:
+            with Mimic(Stub, CreateUserCommandHandler) as _handler:
+                _handler.execute(ANY_ARG).raises(CreateUserCommandHandlerException(error_message))
+            return _handler  # type: ignore
+
+        app.dependency_overrides[_get_create_users_command_handler] = handler
+
+        response = client.post("/api/v1/users", json=payload)
+
+        expect(response.status_code).to(equal(INTERNAL_SERVER_ERROR))
+        expect(response.json()).to(equal({"detail": error_message}))
+
+    def test_raise_error_when_updating_a_non_existing_users(self, client: TestClient) -> None:
+        user = TestData.a_user()
+        payload = {"name": user.name, "age": user.age}
+        error_message = f"User with ID: '{user.id.hex}' not found."
+
+        def handler() -> UpdateUserCommandHandler:
+            with Mimic(Stub, UpdateUserCommandHandler) as _handler:
+                _handler.execute(ANY_ARG).raises(NotFoundUserException(user.id))
+            return _handler  # type: ignore
+
+        app.dependency_overrides[_get_update_one_user_command_handler] = handler
+
+        response = client.put(f"/api/v1/users/{user.id.hex}", json=payload)
+
+        expect(response.status_code).to(equal(NOT_FOUND))
+        expect(response.json()).to(equal({"detail": error_message}))
 
     def test_raise_error_when_deleting_a_non_existing_users(self, client: TestClient) -> None:
         user_id = TestData.ANY_USER_ID
