@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from src.domain.exceptions import NotFoundUserException, NotFoundUserRepositoryException
 from src.domain.user import User
 from src.domain.users_repository import UsersRepository
 
@@ -22,5 +23,8 @@ class UpdateUserCommandHandler:
         self.users_repository = users_repository
 
     def execute(self, command: UpdateUserCommand) -> UpdateUserCommandResponse:
-        user = self.users_repository.update(command.user)
-        return UpdateUserCommandResponse(user)
+        try:
+            user = self.users_repository.update(command.user)
+            return UpdateUserCommandResponse(user)
+        except NotFoundUserRepositoryException as ex:
+            raise NotFoundUserException(command.user.id) from ex
