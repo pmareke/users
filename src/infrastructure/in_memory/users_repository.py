@@ -1,5 +1,6 @@
 from uuid import UUID
 
+from src.domain.exceptions import NotFoundUserRepositoryException
 from src.domain.user import User
 from src.domain.users_repository import UsersRepository
 
@@ -22,4 +23,7 @@ class InMemoryUsersRepository(UsersRepository):
         return user
 
     def delete(self, user_id: UUID) -> None:
-        del self._users[user_id]
+        try:
+            del self._users[user_id]
+        except KeyError as ex:
+            raise NotFoundUserRepositoryException(user_id) from ex
