@@ -1,4 +1,4 @@
-from http.client import CREATED, NO_CONTENT, OK
+from http.client import CREATED, NO_CONTENT, NOT_FOUND, OK
 
 import pytest
 from doublex import Mimic, Spy, Stub
@@ -14,6 +14,7 @@ from src.delivery.api.v1.users.users_router import (
     _get_find_one_user_query_handler,
     _get_update_one_user_command_handler,
 )
+from src.domain.exceptions import NotFoundUserException
 from src.use_cases.commands.create_user_command import (
     CreateUserCommand,
     CreateUserCommandHandler,
@@ -111,3 +112,20 @@ class TestUsersRouter:
 
         expect(response.status_code).to(equal(NO_CONTENT))
         expect(_handler.execute).to(have_been_called_with(command))
+
+    def test_raise_error_when_deleting_a_non_existing_users(self, client: TestClient) -> None:
+        user_id = TestData.ANY_USER_ID
+        command = DeleteUserCommand(user_id)
+        error_message = f"User with ID: '{user_id.hex}' not found."
+
+        def handler() -> DeleteUserCommandHandler:
+            with Mimic(Stub, DeleteUserCommandHandler) as _handler:
+                _handler.execute(command).raises(NotFoundUserException(user_id))
+            return _handler  # type: ignore
+
+        app.dependency_overrides[_get_delete_one_user_command_handler] = handler
+
+        response = client.delete(f"/api/v1/users/{user_id.hex}")
+
+        expect(response.status_code).to(equal(NOT_FOUND))
+        expect(response.json()).to(equal({"detail": error_message}))

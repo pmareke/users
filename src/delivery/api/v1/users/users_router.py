@@ -1,10 +1,11 @@
-from http.client import CREATED, NO_CONTENT, OK
+from http.client import CREATED, NO_CONTENT, NOT_FOUND, OK
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from src.delivery.api.v1.users.user_responses import UserResponse, UsersResponse
 from src.delivery.api.v1.users.users_requests import UserRequest, UserUpdateRequest
+from src.domain.exceptions import NotFoundUserException
 from src.domain.user import User
 from src.infrastructure.in_memory.users_repository import InMemoryUsersRepository
 from src.use_cases.commands.create_user_command import (
@@ -101,8 +102,11 @@ def delete_user(
     user_id: str,
     handler: DeleteUserCommandHandler = Depends(_get_delete_one_user_command_handler),
 ) -> None:
-    command = DeleteUserCommand(UUID(user_id))
-    handler.execute(command)
+    try:
+        command = DeleteUserCommand(UUID(user_id))
+        handler.execute(command)
+    except NotFoundUserException as ex:
+        raise HTTPException(status_code=NOT_FOUND, detail=f"{ex}") from ex
 
 
 def _create_user_from_request(user_request: UserRequest) -> User:
