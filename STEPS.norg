@@ -1,5 +1,5 @@
-* STEPS
-- ( ) Migration plan
+* POSTGRESQL MIGRATION
+- ( ) Baby steps:
 -- ( ) Create *compose.yaml*.
 -- ( ) Create *Dockerfile*.
 -- ( ) Install *deps*.
