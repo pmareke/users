@@ -26,4 +26,4 @@ class DeleteUserCommandHandler:
         except NotFoundUsersRepositoryException as ex:
             session.rollback()
             session.close()
-            raise NotFoundUserException(command.user_id.hex) from ex
+            raise NotFoundUserException(command.user_id) from ex

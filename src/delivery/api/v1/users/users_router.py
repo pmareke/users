@@ -116,7 +116,7 @@ def update_user(
     session: Session = Depends(_get_session),
 ) -> UserResponse:
     try:
-        user = User(id=user_id.hex, name=user_request.name, age=user_request.age)
+        user = User(id=user_id, name=user_request.name, age=user_request.age)
         command = UpdateUserCommand(session, user)
         response = handler.execute(command)
         user_response = response.data()
@@ -139,7 +139,7 @@ def delete_user(
 
 
 def _create_user_from_request(user_request: UserRequest) -> User:
-    return User(id=user_request.id.hex, name=user_request.name, age=user_request.age)
+    return User(id=user_request.id, name=user_request.name, age=user_request.age)
 
 
 def _build_user_response(user: User) -> UserResponse:

@@ -34,4 +34,4 @@ class FindOneUserQueryHandler:
             return FindOneUserQueryResponse(user=user)
         except NotFoundUsersRepositoryException as ex:
             session.close()
-            raise NotFoundUserException(query.user_id.hex) from ex
+            raise NotFoundUserException(query.user_id) from ex

@@ -1,5 +1,3 @@
-from uuid import UUID
-
 from expects import be_empty, equal, expect, raise_error
 
 from src.domain.exceptions import NotFoundUsersRepositoryException
@@ -23,7 +21,7 @@ class TestInMemoryUsersRepositoryIntegration:
         repository = InMemoryUsersRepository()
 
         repository.save(user)
-        found_user = repository.find_by_id(UUID(user.id))
+        found_user = repository.find_by_id(user.id)
 
         expect(found_user).to(equal(user))
 
@@ -47,14 +45,14 @@ class TestInMemoryUsersRepositoryIntegration:
 
         expect(users).to(equal([user]))
 
-        repository.delete(UUID(user.id))
+        repository.delete(user.id)
         users = repository.find_all()
 
         expect(users).to(be_empty)
 
     def test_raise_error_when_finding_a_non_existent_user(self) -> None:
         user_id = TestData.ANY_USER_ID
-        error_message = f"User with ID: '{user_id.hex}' not found."
+        error_message = f"User with ID: '{user_id}' not found."
         users_repository = InMemoryUsersRepository()
 
         expect(lambda: users_repository.find_by_id(user_id)).to(
@@ -63,15 +61,14 @@ class TestInMemoryUsersRepositoryIntegration:
 
     def test_raise_error_when_updating_a_non_existent_user(self) -> None:
         user = TestData.a_user()
-        user_id = UUID(user.id)
-        error_message = f"User with ID: '{user_id.hex}' not found."
+        error_message = f"User with ID: '{user.id}' not found."
         users_repository = InMemoryUsersRepository()
 
         expect(lambda: users_repository.update(user)).to(raise_error(NotFoundUsersRepositoryException, error_message))
 
     def test_raise_error_when_deleting_a_non_existent_user(self) -> None:
         user_id = TestData.ANY_USER_ID
-        error_message = f"User with ID: '{user_id.hex}' not found."
+        error_message = f"User with ID: '{user_id}' not found."
         users_repository = InMemoryUsersRepository()
 
         expect(lambda: users_repository.delete(user_id)).to(

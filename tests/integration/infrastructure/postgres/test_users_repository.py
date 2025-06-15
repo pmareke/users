@@ -1,5 +1,3 @@
-from uuid import UUID
-
 import pytest
 from expects import be_empty, equal, expect, raise_error
 from sqlalchemy import create_engine, text
@@ -27,7 +25,6 @@ class TestPostgresUsersRepositoryIntegration:
 
     def test_save_and_find_all_and_delete_users(self, session: Session) -> None:
         user = TestData.a_user()
-        user_id = UUID(user.id)
         users_repository = PostgresUsersRepository()
 
         users_repository.save(session, user)
@@ -37,7 +34,7 @@ class TestPostgresUsersRepositoryIntegration:
 
         expect(users).to(equal([user]))
 
-        users_repository.delete(session, user_id)
+        users_repository.delete(session, user.id)
         session.commit()
 
         users = users_repository.find_all(session)
@@ -46,19 +43,17 @@ class TestPostgresUsersRepositoryIntegration:
 
     def test_save_and_find_one_user(self, session: Session) -> None:
         user = TestData.a_user()
-        user_id = UUID(user.id)
         users_repository = PostgresUsersRepository()
 
         users_repository.save(session, user)
         session.commit()
 
-        existing_user = users_repository.find_by_id(session, user_id)
+        existing_user = users_repository.find_by_id(session, user.id)
 
         expect(existing_user).to(equal(user))
 
     def test_update_one_user(self, session: Session) -> None:
         user = TestData.a_user()
-        user_id = UUID(user.id)
         edited_user = User(id=user.id, name="new_name", age=user.age)
 
         users_repository = PostgresUsersRepository()
@@ -69,13 +64,13 @@ class TestPostgresUsersRepositoryIntegration:
         users_repository.update(session, edited_user)
         session.commit()
 
-        existing_user = users_repository.find_by_id(session, user_id)
+        existing_user = users_repository.find_by_id(session, user.id)
 
         expect(existing_user).to(equal(edited_user))
 
     def test_raise_error_when_finding_a_non_existent_user(self, session: Session) -> None:
         user_id = TestData.ANY_USER_ID
-        error_message = f"User with ID: '{user_id.hex}' not found."
+        error_message = f"User with ID: '{user_id}' not found."
         users_repository = PostgresUsersRepository()
 
         expect(lambda: users_repository.find_by_id(session, user_id)).to(
@@ -84,8 +79,7 @@ class TestPostgresUsersRepositoryIntegration:
 
     def test_raise_error_when_updating_a_non_existent_user(self, session: Session) -> None:
         user = TestData.a_user()
-        user_id = UUID(user.id)
-        error_message = f"User with ID: '{user_id.hex}' not found."
+        error_message = f"User with ID: '{user.id}' not found."
         users_repository = PostgresUsersRepository()
 
         expect(lambda: users_repository.update(session, user)).to(
@@ -94,7 +88,7 @@ class TestPostgresUsersRepositoryIntegration:
 
     def test_raise_error_when_deleting_a_non_existent_user(self, session: Session) -> None:
         user_id = TestData.ANY_USER_ID
-        error_message = f"User with ID: '{user_id.hex}' not found."
+        error_message = f"User with ID: '{user_id}' not found."
         users_repository = PostgresUsersRepository()
 
         expect(lambda: users_repository.delete(session, user_id)).to(

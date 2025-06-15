@@ -11,7 +11,7 @@ class InMemoryUsersRepository(UsersRepository):
 
     def save(self, user: User) -> None:
         try:
-            self._users[UUID(user.id)] = user
+            self._users[user.id] = user
         except Exception as ex:
             raise UsersRepositoryException(f"{ex}") from ex
 
@@ -25,18 +25,17 @@ class InMemoryUsersRepository(UsersRepository):
         try:
             return self._users[user_id]
         except KeyError as ex:
-            raise NotFoundUsersRepositoryException(user_id.hex) from ex
+            raise NotFoundUsersRepositoryException(user_id) from ex
 
     def update(self, user: User) -> User:
-        user_id = UUID(user.id)
-        if not self._users.get(user_id):
+        if not self._users.get(user.id):
             raise NotFoundUsersRepositoryException(user.id)
 
-        self._users[user_id] = user
+        self._users[user.id] = user
         return user
 
     def delete(self, user_id: UUID) -> None:
         try:
             del self._users[user_id]
         except KeyError as ex:
-            raise NotFoundUsersRepositoryException(user_id.hex) from ex
+            raise NotFoundUsersRepositoryException(user_id) from ex

@@ -1,5 +1,4 @@
 from http.client import CREATED, INTERNAL_SERVER_ERROR, NO_CONTENT, NOT_FOUND, OK
-from uuid import UUID
 
 import pytest
 from doublex import ANY_ARG, Mimic, Spy, Stub
@@ -87,7 +86,7 @@ class TestUsersRouter:
         session = Mimic(Stub, Session)
         with Mimic(Stub, FindOneUserQueryHandler) as handler:
             query_response = FindOneUserQueryResponse(user)
-            query = FindOneUserQuery(session, UUID(user.id))
+            query = FindOneUserQuery(session, user.id)
             handler.execute(query).returns(query_response)
         app.dependency_overrides[_get_find_one_user_query_handler] = lambda: handler
         app.dependency_overrides[_get_session] = lambda: session
@@ -99,7 +98,6 @@ class TestUsersRouter:
 
     def test_update_one_user(self, client: TestClient) -> None:
         user = TestData.a_user()
-        user_id = user.id
         payload = {"name": user.name, "age": user.age}
         session = Mimic(Stub, Session)
         with Mimic(Stub, UpdateUserCommandHandler) as handler:
@@ -109,10 +107,10 @@ class TestUsersRouter:
         app.dependency_overrides[_get_update_one_user_command_handler] = lambda: handler
         app.dependency_overrides[_get_session] = lambda: session
 
-        response = client.put(f"/api/v1/users/{user_id}", json=payload)
+        response = client.put(f"/api/v1/users/{user.id}", json=payload)
 
         expect(response.status_code).to(equal(OK))
-        expected_user = {"id": user.id, "name": user.name, "age": user.age}
+        expected_user = {"id": str(user.id), "name": user.name, "age": user.age}
         expect(response.json()).to(equal(expected_user))
 
     def test_delete_one_user(self, client: TestClient) -> None:
@@ -151,12 +149,12 @@ class TestUsersRouter:
 
     def test_raise_error_when_finding_a_non_existing_user(self, client: TestClient) -> None:
         user_id = TestData.ANY_USER_ID
-        error_message = f"User with ID: '{user_id.hex}' not found."
+        error_message = f"User with ID: '{user_id}' not found."
         session = Mimic(Stub, Session)
 
         def handler() -> FindOneUserQueryHandler:
             with Mimic(Stub, FindOneUserQueryHandler) as _handler:
-                _handler.execute(ANY_ARG).raises(NotFoundUserException(user_id.hex))
+                _handler.execute(ANY_ARG).raises(NotFoundUserException(user_id))
             return _handler  # type: ignore
 
         app.dependency_overrides[_get_find_one_user_query_handler] = handler
@@ -169,9 +167,8 @@ class TestUsersRouter:
 
     def test_raise_error_when_creating_a_user(self, client: TestClient) -> None:
         user = TestData.a_user()
-        user_id = UUID(user.id)
         payload = TestData.a_payload_from_a_user(user)
-        error_message = f"User with ID: '{user_id.hex}' not found."
+        error_message = f"User with ID: '{user.id}' not found."
         session = Mimic(Stub, Session)
 
         def handler() -> CreateUserCommandHandler:
@@ -189,9 +186,8 @@ class TestUsersRouter:
 
     def test_raise_error_when_updating_a_non_existing_users(self, client: TestClient) -> None:
         user = TestData.a_user()
-        user_id = UUID(user.id)
         payload = {"name": user.name, "age": user.age}
-        error_message = f"User with ID: '{user_id.hex}' not found."
+        error_message = f"User with ID: '{user.id}' not found."
         session = Mimic(Stub, Session)
 
         def handler() -> UpdateUserCommandHandler:
@@ -211,11 +207,11 @@ class TestUsersRouter:
         user_id = TestData.ANY_USER_ID
         session = Mimic(Stub, Session)
         command = DeleteUserCommand(session, user_id)
-        error_message = f"User with ID: '{user_id.hex}' not found."
+        error_message = f"User with ID: '{user_id}' not found."
 
         def handler() -> DeleteUserCommandHandler:
             with Mimic(Stub, DeleteUserCommandHandler) as _handler:
-                _handler.execute(command).raises(NotFoundUserException(user_id.hex))
+                _handler.execute(command).raises(NotFoundUserException(user_id))
             return _handler  # type: ignore
 
         app.dependency_overrides[_get_delete_one_user_command_handler] = handler

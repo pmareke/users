@@ -1,8 +1,8 @@
 """first_migration
 
-Revision ID: 2884b90dffc8
+Revision ID: b1bf927741b3
 Revises:
-Create Date: 2025-06-14 18:23:04.597319
+Create Date: 2025-06-15 10:18:25.954643
 
 """
 
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 from alembic import op
 
-revision: str = "2884b90dffc8"
+revision: str = "b1bf927741b3"
 down_revision: str | None = None
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
@@ -21,7 +21,7 @@ depends_on: str | Sequence[str] | None = None
 def upgrade() -> None:
     op.create_table(
         "users",
-        sa.Column("id", sa.String(length=36), autoincrement=False, nullable=False),
+        sa.Column("id", sa.Uuid(), autoincrement=False, nullable=False),
         sa.Column("name", sa.String(length=100), nullable=False),
         sa.Column("age", sa.Numeric(), nullable=False),
         sa.PrimaryKeyConstraint("id"),

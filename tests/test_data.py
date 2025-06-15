@@ -10,8 +10,8 @@ class TestData:
 
     @staticmethod
     def a_user() -> User:
-        return User(id=TestData.ANY_USER_ID.hex, name=TestData.ANY_USER_NAME, age=TestData.ANY_USER_AGE)
+        return User(id=TestData.ANY_USER_ID, name=TestData.ANY_USER_NAME, age=TestData.ANY_USER_AGE)
 
     @staticmethod
     def a_payload_from_a_user(user: User) -> dict:
-        return {"id": TestData.ANY_USER_ID.hex, "name": user.name, "age": user.age}
+        return {"id": str(TestData.ANY_USER_ID), "name": user.name, "age": user.age}

@@ -1,11 +1,14 @@
+from uuid import UUID
+
+
 class NotFoundUserException(Exception):
-    def __init__(self, user_id: str) -> None:
+    def __init__(self, user_id: UUID) -> None:
         error_message = f"User with ID: '{user_id}' not found."
         super().__init__(error_message)
 
 
 class NotFoundUsersRepositoryException(Exception):
-    def __init__(self, user_id: str) -> None:
+    def __init__(self, user_id: UUID) -> None:
         error_message = f"User with ID: '{user_id}' not found."
         super().__init__(error_message)
 

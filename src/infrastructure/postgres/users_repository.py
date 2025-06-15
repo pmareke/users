@@ -25,14 +25,13 @@ class PostgresUsersRepository(UsersRepository):
 
     def find_by_id(self, session: Session, user_id: UUID) -> User:
         try:
-            statement = select(User).where(User.id == user_id.hex)
+            statement = select(User).where(User.id == user_id)
             return session.execute(statement).scalar_one()
         except NoResultFound as ex:
-            raise NotFoundUsersRepositoryException(user_id.hex) from ex
+            raise NotFoundUsersRepositoryException(user_id) from ex
 
     def update(self, session: Session, user: User) -> User:
-        user_id = UUID(user.id)
-        existing_user = self.find_by_id(session, user_id)
+        existing_user = self.find_by_id(session, user.id)
         existing_user.name = user.name
         existing_user.age = user.age
         return existing_user
