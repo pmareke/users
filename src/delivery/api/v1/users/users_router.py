@@ -1,7 +1,10 @@
 from http.client import CREATED, INTERNAL_SERVER_ERROR, NO_CONTENT, NOT_FOUND, OK
 
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
 
+from src.common.settings import settings
 from src.delivery.api.v1.users.user_responses import UserResponse, UsersResponse
 from src.delivery.api.v1.users.users_requests import UserRequest, UserUpdateRequest
 from src.domain.exceptions import (
@@ -10,7 +13,7 @@ from src.domain.exceptions import (
     NotFoundUserException,
 )
 from src.domain.user import User
-from src.infrastructure.in_memory.users_repository import InMemoryUsersRepository
+from src.infrastructure.postgres.users_repository import PostgresUsersRepository
 from src.use_cases.commands.create_user_command import (
     CreateUserCommand,
     CreateUserCommandHandler,
@@ -23,14 +26,14 @@ from src.use_cases.commands.update_user_command import (
     UpdateUserCommand,
     UpdateUserCommandHandler,
 )
-from src.use_cases.queries.find_all_users_query import FindAllUsersQueryHandler
+from src.use_cases.queries.find_all_users_query import FindAllUsersQuery, FindAllUsersQueryHandler
 from src.use_cases.queries.find_one_user_query import (
     FindOneUserQuery,
     FindOneUserQueryHandler,
 )
 
 users_router = APIRouter()
-users_repository = InMemoryUsersRepository()
+users_repository = PostgresUsersRepository()
 
 
 def _get_create_users_command_handler() -> CreateUserCommandHandler:
@@ -53,14 +56,20 @@ def _get_delete_one_user_command_handler() -> DeleteUserCommandHandler:
     return DeleteUserCommandHandler(users_repository)
 
 
+def _get_session() -> Session:
+    engine = create_engine(f"postgresql://{settings.database_dsn}")
+    return Session(engine)
+
+
 @users_router.post("/", status_code=CREATED)
 def create_user(
     user_request: UserRequest,
     handler: CreateUserCommandHandler = Depends(_get_create_users_command_handler),
+    session: Session = Depends(_get_session),
 ) -> None:
     try:
         user = _create_user_from_request(user_request)
-        command = CreateUserCommand(user)
+        command = CreateUserCommand(session, user)
         handler.execute(command)
     except CreateUserCommandHandlerException as ex:
         raise HTTPException(status_code=INTERNAL_SERVER_ERROR, detail=f"{ex}") from ex
@@ -69,9 +78,11 @@ def create_user(
 @users_router.get("/", status_code=OK)
 def find_all_users(
     handler: FindAllUsersQueryHandler = Depends(_get_find_all_users_query_handler),
+    session: Session = Depends(_get_session),
 ) -> UsersResponse:
     try:
-        response = handler.execute()
+        query = FindAllUsersQuery(session)
+        response = handler.execute(query)
         users: list[UserResponse] = []
         for user in response.data():
             json_user = _build_user_response(user)
@@ -85,9 +96,10 @@ def find_all_users(
 def find_one_user(
     user_id: str,
     handler: FindOneUserQueryHandler = Depends(_get_find_one_user_query_handler),
+    session: Session = Depends(_get_session),
 ) -> UserResponse:
     try:
-        query = FindOneUserQuery(user_id)
+        query = FindOneUserQuery(session, user_id)
         response = handler.execute(query)
         user = response.data()
         return _build_user_response(user)
@@ -100,10 +112,11 @@ def update_user(
     user_id: str,
     user_request: UserUpdateRequest,
     handler: UpdateUserCommandHandler = Depends(_get_update_one_user_command_handler),
+    session: Session = Depends(_get_session),
 ) -> UserResponse:
     try:
         user = User(id=user_id, name=user_request.name, age=user_request.age)
-        command = UpdateUserCommand(user)
+        command = UpdateUserCommand(session, user)
         response = handler.execute(command)
         user_response = response.data()
         return _build_user_response(user_response)
@@ -115,9 +128,10 @@ def update_user(
 def delete_user(
     user_id: str,
     handler: DeleteUserCommandHandler = Depends(_get_delete_one_user_command_handler),
+    session: Session = Depends(_get_session),
 ) -> None:
     try:
-        command = DeleteUserCommand(user_id)
+        command = DeleteUserCommand(session, user_id)
         handler.execute(command)
     except NotFoundUserException as ex:
         raise HTTPException(status_code=NOT_FOUND, detail=f"{ex}") from ex

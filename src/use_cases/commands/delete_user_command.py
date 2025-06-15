@@ -1,12 +1,20 @@
 from dataclasses import dataclass
 
+from sqlalchemy.orm import Session
+
 from src.domain.exceptions import NotFoundUserException, NotFoundUsersRepositoryException
 from src.domain.users_repository import UsersRepository
 
 
 @dataclass
 class DeleteUserCommand:
+    session: Session
     user_id: str
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, DeleteUserCommand):
+            return NotImplemented
+        return self.session == other.session and self.user_id == other.user_id
 
 
 class DeleteUserCommandHandler:
@@ -15,6 +23,11 @@ class DeleteUserCommandHandler:
 
     def execute(self, command: DeleteUserCommand) -> None:
         try:
-            self.users_repository.delete(command.user_id)
+            session = command.session
+            self.users_repository.delete(session, command.user_id)
+            session.commit()
+            session.close()
         except NotFoundUsersRepositoryException as ex:
+            session.rollback()
+            session.close()
             raise NotFoundUserException(command.user_id) from ex

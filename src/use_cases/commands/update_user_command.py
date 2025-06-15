@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from sqlalchemy.orm import Session
+
 from src.domain.exceptions import NotFoundUserException, NotFoundUsersRepositoryException
 from src.domain.user import User
 from src.domain.users_repository import UsersRepository
@@ -7,7 +9,13 @@ from src.domain.users_repository import UsersRepository
 
 @dataclass
 class UpdateUserCommand:
+    session: Session
     user: User
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, UpdateUserCommand):
+            return False
+        return self.session == other.session and self.user == other.user
 
 
 class UpdateUserCommandResponse:
@@ -24,7 +32,12 @@ class UpdateUserCommandHandler:
 
     def execute(self, command: UpdateUserCommand) -> UpdateUserCommandResponse:
         try:
-            user = self.users_repository.update(command.user)
+            session = command.session
+            user = self.users_repository.update(command.session, command.user)
+            session.commit()
+            session.close()
             return UpdateUserCommandResponse(user)
         except NotFoundUsersRepositoryException as ex:
+            session.rollback()
+            session.close()
             raise NotFoundUserException(command.user.id) from ex

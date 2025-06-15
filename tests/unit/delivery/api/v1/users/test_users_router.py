@@ -5,6 +5,7 @@ from doublex import ANY_ARG, Mimic, Spy, Stub
 from doublex_expects import have_been_called_with
 from expects import equal, expect
 from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
 
 from main import app
 from src.delivery.api.v1.users.users_router import (
@@ -12,6 +13,7 @@ from src.delivery.api.v1.users.users_router import (
     _get_delete_one_user_command_handler,
     _get_find_all_users_query_handler,
     _get_find_one_user_query_handler,
+    _get_session,
     _get_update_one_user_command_handler,
 )
 from src.domain.exceptions import (
@@ -33,6 +35,7 @@ from src.use_cases.commands.update_user_command import (
     UpdateUserCommandResponse,
 )
 from src.use_cases.queries.find_all_users_query import (
+    FindAllUsersQuery,
     FindAllUsersQueryHandler,
     FindAllUsersQueryResponse,
 )
@@ -53,8 +56,10 @@ class TestUsersRouter:
         user = TestData.a_user()
         payload = TestData.a_payload_from_a_user(user)
         handler = Mimic(Spy, CreateUserCommandHandler)
+        session = Mimic(Stub, Session)
         app.dependency_overrides[_get_create_users_command_handler] = lambda: handler
-        command = CreateUserCommand(user)
+        app.dependency_overrides[_get_session] = lambda: session
+        command = CreateUserCommand(session, user)
 
         response = client.post("/api/v1/users", json=payload)
 
@@ -63,10 +68,13 @@ class TestUsersRouter:
 
     def test_find_all_users(self, client: TestClient) -> None:
         user = TestData.a_user()
+        session = Mimic(Stub, Session)
         with Mimic(Stub, FindAllUsersQueryHandler) as handler:
+            query = FindAllUsersQuery(session)
             query_response = FindAllUsersQueryResponse([user])
-            handler.execute().returns(query_response)
+            handler.execute(query).returns(query_response)
         app.dependency_overrides[_get_find_all_users_query_handler] = lambda: handler
+        app.dependency_overrides[_get_session] = lambda: session
 
         response = client.get("/api/v1/users")
 
@@ -75,11 +83,13 @@ class TestUsersRouter:
 
     def test_find_one_user(self, client: TestClient) -> None:
         user = TestData.a_user()
+        session = Mimic(Stub, Session)
         with Mimic(Stub, FindOneUserQueryHandler) as handler:
             query_response = FindOneUserQueryResponse(user)
-            query = FindOneUserQuery(user.id)
+            query = FindOneUserQuery(session, user.id)
             handler.execute(query).returns(query_response)
         app.dependency_overrides[_get_find_one_user_query_handler] = lambda: handler
+        app.dependency_overrides[_get_session] = lambda: session
 
         response = client.get(f"/api/v1/users/{user.id}")
 
@@ -90,11 +100,13 @@ class TestUsersRouter:
         user = TestData.a_user()
         user_id = user.id
         payload = {"name": user.name, "age": user.age}
+        session = Mimic(Stub, Session)
         with Mimic(Stub, UpdateUserCommandHandler) as handler:
             command_response = UpdateUserCommandResponse(user)
-            command = UpdateUserCommand(user)
+            command = UpdateUserCommand(session, user)
             handler.execute(command).returns(command_response)
         app.dependency_overrides[_get_update_one_user_command_handler] = lambda: handler
+        app.dependency_overrides[_get_session] = lambda: session
 
         response = client.put(f"/api/v1/users/{user_id}", json=payload)
 
@@ -104,13 +116,15 @@ class TestUsersRouter:
 
     def test_delete_one_user(self, client: TestClient) -> None:
         user_id = TestData.ANY_USER_ID
-        command = DeleteUserCommand(user_id)
+        session = Mimic(Stub, Session)
+        command = DeleteUserCommand(session, user_id)
         _handler = Mimic(Spy, DeleteUserCommandHandler)
 
         def handler() -> DeleteUserCommandHandler:
             return _handler  # type: ignore
 
         app.dependency_overrides[_get_delete_one_user_command_handler] = handler
+        app.dependency_overrides[_get_session] = lambda: session
 
         response = client.delete(f"/api/v1/users/{user_id}")
 
@@ -119,13 +133,15 @@ class TestUsersRouter:
 
     def test_raise_error_when_finding_all_users(self, client: TestClient) -> None:
         error_message = "Failed to find users."
+        session = Mimic(Stub, Session)
 
         def handler() -> FindAllUsersQueryHandler:
             with Mimic(Stub, FindAllUsersQueryHandler) as _handler:
-                _handler.execute().raises(FindAllUsersQueryHandlerException(error_message))
+                _handler.execute(ANY_ARG).raises(FindAllUsersQueryHandlerException(error_message))
             return _handler  # type: ignore
 
         app.dependency_overrides[_get_find_all_users_query_handler] = handler
+        app.dependency_overrides[_get_session] = lambda: session
 
         response = client.get("/api/v1/users")
 
@@ -135,6 +151,7 @@ class TestUsersRouter:
     def test_raise_error_when_finding_a_non_existing_user(self, client: TestClient) -> None:
         user_id = TestData.ANY_USER_ID
         error_message = f"User with ID: '{user_id}' not found."
+        session = Mimic(Stub, Session)
 
         def handler() -> FindOneUserQueryHandler:
             with Mimic(Stub, FindOneUserQueryHandler) as _handler:
@@ -142,6 +159,7 @@ class TestUsersRouter:
             return _handler  # type: ignore
 
         app.dependency_overrides[_get_find_one_user_query_handler] = handler
+        app.dependency_overrides[_get_session] = lambda: session
 
         response = client.get(f"/api/v1/users/{user_id}")
 
@@ -152,6 +170,7 @@ class TestUsersRouter:
         user = TestData.a_user()
         payload = TestData.a_payload_from_a_user(user)
         error_message = f"User: '{user}' could not be saved"
+        session = Mimic(Stub, Session)
 
         def handler() -> CreateUserCommandHandler:
             with Mimic(Stub, CreateUserCommandHandler) as _handler:
@@ -159,6 +178,7 @@ class TestUsersRouter:
             return _handler  # type: ignore
 
         app.dependency_overrides[_get_create_users_command_handler] = handler
+        app.dependency_overrides[_get_session] = lambda: session
 
         response = client.post("/api/v1/users", json=payload)
 
@@ -169,6 +189,7 @@ class TestUsersRouter:
         user = TestData.a_user()
         payload = {"name": user.name, "age": user.age}
         error_message = f"User with ID: '{user.id}' not found."
+        session = Mimic(Stub, Session)
 
         def handler() -> UpdateUserCommandHandler:
             with Mimic(Stub, UpdateUserCommandHandler) as _handler:
@@ -176,6 +197,7 @@ class TestUsersRouter:
             return _handler  # type: ignore
 
         app.dependency_overrides[_get_update_one_user_command_handler] = handler
+        app.dependency_overrides[_get_session] = lambda: session
 
         response = client.put(f"/api/v1/users/{user.id}", json=payload)
 
@@ -184,7 +206,8 @@ class TestUsersRouter:
 
     def test_raise_error_when_deleting_a_non_existing_users(self, client: TestClient) -> None:
         user_id = TestData.ANY_USER_ID
-        command = DeleteUserCommand(user_id)
+        session = Mimic(Stub, Session)
+        command = DeleteUserCommand(session, user_id)
         error_message = f"User with ID: '{user_id}' not found."
 
         def handler() -> DeleteUserCommandHandler:
@@ -193,6 +216,7 @@ class TestUsersRouter:
             return _handler  # type: ignore
 
         app.dependency_overrides[_get_delete_one_user_command_handler] = handler
+        app.dependency_overrides[_get_session] = lambda: session
 
         response = client.delete(f"/api/v1/users/{user_id}")
 

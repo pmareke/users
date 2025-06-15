@@ -35,6 +35,8 @@ class TestPostgresUsersRepositoryIntegration:
         expect(users).to(equal([user]))
 
         users_repository.delete(session, user.id)
+        session.commit()
+
         users = users_repository.find_all(session)
 
         expect(users).to(be_empty)
@@ -58,6 +60,7 @@ class TestPostgresUsersRepositoryIntegration:
 
         users_repository.save(session, user)
         session.commit()
+
         users_repository.update(session, edited_user)
         session.commit()
 
