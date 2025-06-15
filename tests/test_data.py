@@ -14,4 +14,4 @@ class TestData:
 
     @staticmethod
     def a_payload_from_a_user(user: User) -> dict:
-        return {"id": str(TestData.ANY_USER_ID), "name": user.name, "age": user.age}
+        return {"id": str(user.id), "name": user.name, "age": user.age}
