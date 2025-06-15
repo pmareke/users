@@ -14,14 +14,11 @@
   -- (_) Edit *alembic/env.py*.
   - (_) Create first migration.
   - (_) Create *integration* tests.
-  -- (_) Create *PostgresUsersRepository* class.
-  -- (_) Create *Settings* class.
-  -- (_) Run migrations before the starts.
   - (_) Create *unit* tests for unhappy paths.
   - (_) Run migrations on startup.
-  - (_) Replace repository.
   - (_) Update tests *use_case* unit tests.
   -- (_) Inject *session* in the use cases.
   -- (_) Add the *commit*, *close* and *rollback* calls.
+  - (_) Replace repository.
   - (_) Update *delivery* unit tests.
   -- (_) Inject a *session* in the routes.
