@@ -5,7 +5,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DATABASE_DSN: "dqms:password@postgres/dqms"
+      DATABASE_DSN: "users:password@postgres/users"
     volumes:
       - ./src:/code/src
       - ./alembic:/code/alembic
