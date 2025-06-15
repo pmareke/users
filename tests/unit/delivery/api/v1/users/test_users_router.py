@@ -81,14 +81,13 @@ class TestUsersRouter:
             handler.execute(query).returns(query_response)
         app.dependency_overrides[_get_find_one_user_query_handler] = lambda: handler
 
-        response = client.get(f"/api/v1/users/{user.id.hex}")
+        response = client.get(f"/api/v1/users/{user.id}")
 
         expect(response.status_code).to(equal(OK))
         expect(response.json()).to(equal(user.json()))
 
     def test_update_one_user(self, client: TestClient) -> None:
         user = TestData.a_user()
-        user_id = user.id.hex
         payload = {"name": user.name, "age": user.age}
         with Mimic(Stub, UpdateUserCommandHandler) as handler:
             command_response = UpdateUserCommandResponse(user)
@@ -96,10 +95,10 @@ class TestUsersRouter:
             handler.execute(command).returns(command_response)
         app.dependency_overrides[_get_update_one_user_command_handler] = lambda: handler
 
-        response = client.put(f"/api/v1/users/{user_id}", json=payload)
+        response = client.put(f"/api/v1/users/{user.id}", json=payload)
 
         expect(response.status_code).to(equal(OK))
-        expected_user = {"id": user.id.hex, "name": user.name, "age": user.age}
+        expected_user = {"id": str(user.id), "name": user.name, "age": user.age}
         expect(response.json()).to(equal(expected_user))
 
     def test_delete_one_user(self, client: TestClient) -> None:
@@ -112,7 +111,7 @@ class TestUsersRouter:
 
         app.dependency_overrides[_get_delete_one_user_command_handler] = handler
 
-        response = client.delete(f"/api/v1/users/{user_id.hex}")
+        response = client.delete(f"/api/v1/users/{user_id}")
 
         expect(response.status_code).to(equal(NO_CONTENT))
         expect(_handler.execute).to(have_been_called_with(command))
@@ -134,7 +133,7 @@ class TestUsersRouter:
 
     def test_raise_error_when_finding_a_non_existing_user(self, client: TestClient) -> None:
         user_id = TestData.ANY_USER_ID
-        error_message = f"User with ID: '{user_id.hex}' not found."
+        error_message = f"User with ID: '{user_id}' not found."
 
         def handler() -> FindOneUserQueryHandler:
             with Mimic(Stub, FindOneUserQueryHandler) as _handler:
@@ -143,7 +142,7 @@ class TestUsersRouter:
 
         app.dependency_overrides[_get_find_one_user_query_handler] = handler
 
-        response = client.get(f"/api/v1/users/{user_id.hex}")
+        response = client.get(f"/api/v1/users/{user_id}")
 
         expect(response.status_code).to(equal(NOT_FOUND))
         expect(response.json()).to(equal({"detail": error_message}))
@@ -168,7 +167,7 @@ class TestUsersRouter:
     def test_raise_error_when_updating_a_non_existing_users(self, client: TestClient) -> None:
         user = TestData.a_user()
         payload = {"name": user.name, "age": user.age}
-        error_message = f"User with ID: '{user.id.hex}' not found."
+        error_message = f"User with ID: '{user.id}' not found."
 
         def handler() -> UpdateUserCommandHandler:
             with Mimic(Stub, UpdateUserCommandHandler) as _handler:
@@ -177,7 +176,7 @@ class TestUsersRouter:
 
         app.dependency_overrides[_get_update_one_user_command_handler] = handler
 
-        response = client.put(f"/api/v1/users/{user.id.hex}", json=payload)
+        response = client.put(f"/api/v1/users/{user.id}", json=payload)
 
         expect(response.status_code).to(equal(NOT_FOUND))
         expect(response.json()).to(equal({"detail": error_message}))
@@ -185,7 +184,7 @@ class TestUsersRouter:
     def test_raise_error_when_deleting_a_non_existing_users(self, client: TestClient) -> None:
         user_id = TestData.ANY_USER_ID
         command = DeleteUserCommand(user_id)
-        error_message = f"User with ID: '{user_id.hex}' not found."
+        error_message = f"User with ID: '{user_id}' not found."
 
         def handler() -> DeleteUserCommandHandler:
             with Mimic(Stub, DeleteUserCommandHandler) as _handler:
@@ -194,7 +193,7 @@ class TestUsersRouter:
 
         app.dependency_overrides[_get_delete_one_user_command_handler] = handler
 
-        response = client.delete(f"/api/v1/users/{user_id.hex}")
+        response = client.delete(f"/api/v1/users/{user_id}")
 
         expect(response.status_code).to(equal(NOT_FOUND))
         expect(response.json()).to(equal({"detail": error_message}))

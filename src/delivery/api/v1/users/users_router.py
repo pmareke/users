@@ -84,12 +84,11 @@ def find_all_users(
 
 @users_router.get("/{user_id}", status_code=OK)
 def find_one_user(
-    user_id: str,
+    user_id: UUID,
     handler: FindOneUserQueryHandler = Depends(_get_find_one_user_query_handler),
 ) -> UserResponse:
     try:
-        id = UUID(user_id)
-        query = FindOneUserQuery(id)
+        query = FindOneUserQuery(user_id)
         response = handler.execute(query)
         user = response.data()
         return _build_user_response(user)
@@ -99,12 +98,12 @@ def find_one_user(
 
 @users_router.put("/{user_id}", status_code=OK)
 def update_user(
-    user_id: str,
+    user_id: UUID,
     user_request: UserUpdateRequest,
     handler: UpdateUserCommandHandler = Depends(_get_update_one_user_command_handler),
 ) -> UserResponse:
     try:
-        user = User(UUID(user_id), user_request.name, user_request.age)
+        user = User(user_id, user_request.name, user_request.age)
         command = UpdateUserCommand(user)
         response = handler.execute(command)
         user_response = response.data()
@@ -115,19 +114,19 @@ def update_user(
 
 @users_router.delete("/{user_id}", status_code=NO_CONTENT)
 def delete_user(
-    user_id: str,
+    user_id: UUID,
     handler: DeleteUserCommandHandler = Depends(_get_delete_one_user_command_handler),
 ) -> None:
     try:
-        command = DeleteUserCommand(UUID(user_id))
+        command = DeleteUserCommand(user_id)
         handler.execute(command)
     except NotFoundUserException as ex:
         raise HTTPException(status_code=NOT_FOUND, detail=f"{ex}") from ex
 
 
 def _create_user_from_request(user_request: UserRequest) -> User:
-    return User(id=UUID(user_request.id), name=user_request.name, age=user_request.age)
+    return User(id=user_request.id, name=user_request.name, age=user_request.age)
 
 
 def _build_user_response(user: User) -> UserResponse:
-    return UserResponse(id=user.id.hex, name=user.name, age=user.age)
+    return UserResponse(id=user.id, name=user.name, age=user.age)

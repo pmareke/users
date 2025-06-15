@@ -24,7 +24,7 @@ class TestUpdateUserCommandHandler:
 
     def test_raise_error_when_updating_a_non_existing(self) -> None:
         user = TestData.a_user()
-        error_message = f"User with ID: '{user.id.hex}' not found."
+        error_message = f"User with ID: '{user.id}' not found."
         command = UpdateUserCommand(user)
         with Mimic(Stub, InMemoryUsersRepository) as users_repository:
             users_repository.update(ANY_ARG).raises(NotFoundUsersRepositoryException(user.id))
