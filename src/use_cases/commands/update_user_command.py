@@ -12,11 +12,6 @@ class UpdateUserCommand:
     session: Session
     user: User
 
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, UpdateUserCommand):
-            return False
-        return self.session == other.session and self.user == other.user
-
 
 class UpdateUserCommandResponse:
     def __init__(self, user: User) -> None:

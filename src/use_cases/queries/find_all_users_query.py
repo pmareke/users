@@ -11,11 +11,6 @@ from src.domain.users_repository import UsersRepository
 class FindAllUsersQuery:
     session: Session
 
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, FindAllUsersQuery):
-            return False
-        return self.session == other.session
-
 
 @dataclass
 class FindAllUsersQueryResponse:

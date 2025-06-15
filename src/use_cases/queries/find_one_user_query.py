@@ -12,11 +12,6 @@ class FindOneUserQuery:
     session: Session
     user_id: str
 
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, FindOneUserQuery):
-            return False
-        return self.session == other.session and self.user_id == other.user_id
-
 
 @dataclass
 class FindOneUserQueryResponse:

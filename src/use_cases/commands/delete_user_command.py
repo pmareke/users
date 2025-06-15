@@ -11,11 +11,6 @@ class DeleteUserCommand:
     session: Session
     user_id: str
 
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, DeleteUserCommand):
-            return NotImplemented
-        return self.session == other.session and self.user_id == other.user_id
-
 
 class DeleteUserCommandHandler:
     def __init__(self, users_repository: UsersRepository) -> None:

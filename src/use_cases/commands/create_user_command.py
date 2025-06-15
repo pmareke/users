@@ -12,11 +12,6 @@ class CreateUserCommand:
     session: Session
     user: User
 
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, CreateUserCommand):
-            return False
-        return self.session == other.session and self.user == other.user
-
 
 class CreateUserCommandHandler:
     def __init__(self, users_repository: UsersRepository) -> None:
