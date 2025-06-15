@@ -1,27 +1,27 @@
 * Postgres migration plan
-  - (_) Create `compose.yaml`.
-  - (_) Install deps.
-  -- (_) `pydantic-settings`.
-  -- (_) `sqlalchemy[postgresql].`
-  -- (_) `alembic`.
-  - (_) Create `Dockerfile`.
-  - (_) Update `Makefile`.
-  - (_) Configure `alembic`.
- -- (_) Create `Base` class.
-  - (_) Change `User` class to be a `SQLAlchemy` model.
- -- (_) Importe the classes in the `env.py` file.
+  - (_) Create *compose.yaml*.
+  - (_) Create *Dockerfile*.
+  - (_) Install *deps*.
+  -- (_) *pydantic-settings*.
+  -- (_) *sqlalchemy\[postgresql\].*
+  -- (_) *alembic*.
+  - (_) Update *Makefile*.
+  - (_) Create *Base* class.
+  - (_) Change *User(Base)*.
+  - (_) Configure *alembic*.
+  -- (_) Run *alembic init alembic*.
+  -- (_) Edit *alembic.ini*.
+  -- (_) Edit *alembic/env.py*.
   - (_) Create first migration.
-  - (_) Run migrations on startup.
-  - (_) Create integration tests.
+  - (_) Create *integration* tests.
+  -- (_) Create *PostgresUsersRepository* class.
+  -- (_) Create *Settings* class.
   -- (_) Run migrations before the starts.
-  -- (_) Create `PostgresUsersRepository` class.
-  -- (_) Create `Settings` class.
-  - (_) Create unit tests.
+  - (_) Create *unit* tests for unhappy paths.
+  - (_) Run migrations on startup.
   - (_) Replace repository.
-  -- (_) Update tests `use_case` unit tests.
-  --- (_) Inject session in all the commands and queries.
-  --- (_) Add the `commit`, `close` and `rollback` calls.
-  -- (_) Update tests `delivery` unit tests.
-  --- (_) Create a `session` in the router and inject in all the routes.
-
-
+  - (_) Update tests *use_case* unit tests.
+  -- (_) Inject *session* in the use cases.
+  -- (_) Add the *commit*, *close* and *rollback* calls.
+  - (_) Update *delivery* unit tests.
+  -- (_) Inject a *session* in the routes.
