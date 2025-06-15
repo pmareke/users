@@ -29,11 +29,11 @@ class TestDeleteUserCommandHandler:
 
     def test_raise_error_when_deleting_a_non_existing_user(self) -> None:
         user_id = TestData.ANY_USER_ID
-        error_message = f"User with ID: '{user_id}' not found."
+        error_message = f"User with ID: '{user_id.hex}' not found."
         session = Mimic(Spy, Session)
         command = DeleteUserCommand(session, user_id)
         with Mimic(Stub, PostgresUsersRepository) as users_repository:
-            users_repository.delete(ANY_ARG).raises(NotFoundUsersRepositoryException(user_id))
+            users_repository.delete(ANY_ARG).raises(NotFoundUsersRepositoryException(user_id.hex))
         handler = DeleteUserCommandHandler(users_repository)  # type: ignore
 
         expect(lambda: handler.execute(command)).to(raise_error(NotFoundUserException, error_message))

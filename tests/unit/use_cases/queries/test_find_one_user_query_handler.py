@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from doublex import ANY_ARG, Mimic, Spy, Stub
 from doublex_expects import have_been_called
 from expects import equal, expect, raise_error
@@ -16,9 +18,9 @@ class TestFindOneUserQueryHandler:
     def test_find_one_user(self) -> None:
         user = TestData.a_user()
         session = Mimic(Spy, Session)
-        query = FindOneUserQuery(session, user.id)
+        query = FindOneUserQuery(session, UUID(user.id))
         with Mimic(Stub, PostgresUsersRepository) as users_repository:
-            users_repository.find_by_id(session, user.id).returns(user)
+            users_repository.find_by_id(session, UUID(user.id)).returns(user)
         handler = FindOneUserQueryHandler(users_repository)  # type: ignore
 
         response = handler.execute(query)
@@ -31,9 +33,9 @@ class TestFindOneUserQueryHandler:
         user_id = TestData.ANY_USER_ID
         session = Mimic(Spy, Session)
         query = FindOneUserQuery(session, user_id)
-        error_message = f"User with ID: '{user_id}' not found."
+        error_message = f"User with ID: '{user_id.hex}' not found."
         with Mimic(Stub, PostgresUsersRepository) as users_repository:
-            users_repository.find_by_id(ANY_ARG).raises(NotFoundUsersRepositoryException(user_id))
+            users_repository.find_by_id(ANY_ARG).raises(NotFoundUsersRepositoryException(user_id.hex))
         handler = FindOneUserQueryHandler(users_repository)  # type: ignore
 
         expect(lambda: handler.execute(query)).to(raise_error(NotFoundUserException, error_message))

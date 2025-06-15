@@ -1,4 +1,5 @@
 from http.client import CREATED, INTERNAL_SERVER_ERROR, NO_CONTENT, NOT_FOUND, OK
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import create_engine
@@ -94,7 +95,7 @@ def find_all_users(
 
 @users_router.get("/{user_id}", status_code=OK)
 def find_one_user(
-    user_id: str,
+    user_id: UUID,
     handler: FindOneUserQueryHandler = Depends(_get_find_one_user_query_handler),
     session: Session = Depends(_get_session),
 ) -> UserResponse:
@@ -109,13 +110,13 @@ def find_one_user(
 
 @users_router.put("/{user_id}", status_code=OK)
 def update_user(
-    user_id: str,
+    user_id: UUID,
     user_request: UserUpdateRequest,
     handler: UpdateUserCommandHandler = Depends(_get_update_one_user_command_handler),
     session: Session = Depends(_get_session),
 ) -> UserResponse:
     try:
-        user = User(id=user_id, name=user_request.name, age=user_request.age)
+        user = User(id=user_id.hex, name=user_request.name, age=user_request.age)
         command = UpdateUserCommand(session, user)
         response = handler.execute(command)
         user_response = response.data()
@@ -126,7 +127,7 @@ def update_user(
 
 @users_router.delete("/{user_id}", status_code=NO_CONTENT)
 def delete_user(
-    user_id: str,
+    user_id: UUID,
     handler: DeleteUserCommandHandler = Depends(_get_delete_one_user_command_handler),
     session: Session = Depends(_get_session),
 ) -> None:
@@ -138,7 +139,7 @@ def delete_user(
 
 
 def _create_user_from_request(user_request: UserRequest) -> User:
-    return User(id=user_request.id, name=user_request.name, age=user_request.age)
+    return User(id=user_request.id.hex, name=user_request.name, age=user_request.age)
 
 
 def _build_user_response(user: User) -> UserResponse:

@@ -1,0 +1,28 @@
+* Postgres migration plan
+  - (_) Create `compose.yaml`.
+  - (_) Install deps.
+  -- (_) `alembic`.
+  -- (_) `fastapi[standard]`.
+  -- (_) `pydantic-setting`.
+  -- (_) `sqlalchemy[postgresql].`
+  - (_) Create `Dockerfile`.
+  - (_) Update `Makefile`.
+  - (_) Configure `alembic`.
+  - (_) Change `User` class to be a `SQLAlchemy` model.
+  -- (_) Create `Base` class.
+  -- (_) Importe the classes in the `env.py` file.
+  - (_) Create first migration.
+  - (_) Run migrations on startup.
+  - (_) Create integration tests.
+  -- (_) Run migrations before the starts.
+  -- (_) Create `PostgresUsersRepository` class.
+  -- (_) Create `Settings` class.
+  - (_) Create unit tests.
+  - (_) Replace repository.
+  -- (_) Update tests `use_case` unit tests.
+  --- (_) Inject session in all the commands and queries.
+  --- (_) Add the `commit`, `close` and `rollback` calls.
+  -- (_) Update tests `delivery` unit tests.
+  --- (_) Create a `session` in the router and inject in all the routes.
+
+

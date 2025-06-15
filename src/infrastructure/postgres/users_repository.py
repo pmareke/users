@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
@@ -21,19 +23,20 @@ class PostgresUsersRepository(UsersRepository):
         except Exception as ex:
             raise UsersRepositoryException(f"An error occurred while trying to find all users, ex: '{ex}'.") from ex
 
-    def find_by_id(self, session: Session, user_id: str) -> User:
+    def find_by_id(self, session: Session, user_id: UUID) -> User:
         try:
-            statement = select(User).where(User.id == user_id)
+            statement = select(User).where(User.id == user_id.hex)
             return session.execute(statement).scalar_one()
         except NoResultFound as ex:
-            raise NotFoundUsersRepositoryException(user_id) from ex
+            raise NotFoundUsersRepositoryException(user_id.hex) from ex
 
     def update(self, session: Session, user: User) -> User:
-        existing_user = self.find_by_id(session, user.id)
+        user_id = UUID(user.id)
+        existing_user = self.find_by_id(session, user_id)
         existing_user.name = user.name
         existing_user.age = user.age
         return existing_user
 
-    def delete(self, session: Session, user_id: str) -> None:
+    def delete(self, session: Session, user_id: UUID) -> None:
         user = self.find_by_id(session, user_id)
         session.delete(user)

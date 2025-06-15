@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from uuid import UUID
 
 from sqlalchemy.orm import Session
 
@@ -10,7 +11,7 @@ from src.domain.users_repository import UsersRepository
 @dataclass
 class FindOneUserQuery:
     session: Session
-    user_id: str
+    user_id: UUID
 
 
 @dataclass
@@ -33,4 +34,4 @@ class FindOneUserQueryHandler:
             return FindOneUserQueryResponse(user=user)
         except NotFoundUsersRepositoryException as ex:
             session.close()
-            raise NotFoundUserException(query.user_id) from ex
+            raise NotFoundUserException(query.user_id.hex) from ex

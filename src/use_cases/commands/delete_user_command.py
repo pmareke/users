@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from uuid import UUID
 
 from sqlalchemy.orm import Session
 
@@ -9,7 +10,7 @@ from src.domain.users_repository import UsersRepository
 @dataclass
 class DeleteUserCommand:
     session: Session
-    user_id: str
+    user_id: UUID
 
 
 class DeleteUserCommandHandler:
@@ -25,4 +26,4 @@ class DeleteUserCommandHandler:
         except NotFoundUsersRepositoryException as ex:
             session.rollback()
             session.close()
-            raise NotFoundUserException(command.user_id) from ex
+            raise NotFoundUserException(command.user_id.hex) from ex
