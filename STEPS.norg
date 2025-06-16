@@ -1,4 +1,4 @@
-* POSTGRESQL MIGRATION
+* POSTGRESQL USERS REPOSITORY
 - ( ) Baby steps:
 -- ( ) Create *compose.yaml*.
 -- ( ) Create *Dockerfile*.
