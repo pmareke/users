@@ -11,5 +11,5 @@
 -- ( ) Create *integration* tests.
 -- ( ) Create *unit* tests.
 -- ( ) Run migrations on startup.
--- ( ) Update *use_case* unit tests.
+-- ( ) Update *use_cases* unit tests.
 -- ( ) Update *delivery* unit tests.
