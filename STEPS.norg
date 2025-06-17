@@ -3,23 +3,13 @@
 -- ( ) Create *compose.yaml*.
 -- ( ) Create *Dockerfile*.
 -- ( ) Install *deps*.
-  --- *pydantic-settings*.
-  --- *sqlalchemy\[postgresql\].*
-  --- *alembic*.
--- ( ) Update *Makefile*.
 -- ( ) Create *Base* class.
 -- ( ) Change *User(Base)*.
 -- ( ) Configure *alembic*.
---- ( ) Run *alembic init alembic*.
---- ( ) Edit *alembic.ini*.
---- ( ) Edit *alembic/env.py*.
+-- ( ) Update *Makefile*.
 -- ( ) Create first migration.
 -- ( ) Create *integration* tests.
--- ( ) Create *unit* tests for unhappy paths.
+-- ( ) Create *unit* tests.
 -- ( ) Run migrations on startup.
 -- ( ) Update *use_case* unit tests.
---- ( ) Inject *session* in the use cases.
-  --- ( ) Add the *session* calls.
---- ( ) Replace repository.
 -- ( ) Update *delivery* unit tests.
---- ( ) Inject a *session* in the routes.
