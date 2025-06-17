@@ -10,6 +10,6 @@
 -- ( ) Create first migration.
 -- ( ) Create *integration* tests.
 -- ( ) Create *unit* tests.
--- ( ) Run migrations on startup.
 -- ( ) Update *use_cases* unit tests.
 -- ( ) Update *delivery* unit tests.
+-- ( ) Run migrations on startup.
