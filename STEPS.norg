@@ -1,5 +1,6 @@
 * POSTGRESQL USERS REPOSITORY
 - ( ) Baby steps:
+-- ( ) Create *integration* tests.
 -- ( ) Create *compose.yaml*.
 -- ( ) Create *Dockerfile*.
 -- ( ) Install *deps*.
@@ -8,7 +9,6 @@
 -- ( ) Configure *alembic*.
 -- ( ) Update *Makefile*.
 -- ( ) Create first migration.
--- ( ) Create *integration* tests.
 -- ( ) Create *unit* tests.
 -- ( ) Update *use_cases* unit tests.
 -- ( ) Update *delivery* unit tests.
